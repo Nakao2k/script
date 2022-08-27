@@ -35,8 +35,6 @@ Dim strPreOs
 Dim charDomain
 ' ユーザー名(現在ログインしているユーザー)
 Dim charUserName
-' OSサービスパックのバージョン
-Dim charSpVersion
 ' UUID
 Dim charUuid
 ' 出力メッセージ(LANアダプター)
@@ -102,8 +100,6 @@ Set colItems = objWMIService.ExecQuery("Select * from Win32_OperatingSystem",,48
 For Each objItem in colItems
 	' OS
 	strPreOs = objItem.Caption
-	' サービスパック
-	charSpVersion = objItem.CSDVersion
 Next
 ' OS・サービスパックの取得 End
 
@@ -234,7 +230,6 @@ strOutputMessage = _
 	"memory" & CONST_STR_SEP & strMemory & vbCrLf & _
 	"preOs" & CONST_STR_SEP & strPreOs & vbCrLf & _
 	"charDomain" & CONST_STR_SEP & charDomain & vbCrLf & _
-	"charSpVersion" & CONST_STR_SEP & charSpVersion & vbCrLf & _
 	"charUserName" & CONST_STR_SEP & charUserName & vbCrLf & _
 	"charUuid" & CONST_STR_SEP & charUuid & vbCrLf & _
 	strLanAdpt & vbCrLf & _
