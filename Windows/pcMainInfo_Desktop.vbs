@@ -67,8 +67,6 @@ Dim objExec
 
 Dim strMsg
 Dim strOutputDir
-Dim strNasDir
-Dim strNasFull
 Dim strOutputFile
 Dim strOutputFull
 Dim strYmd
@@ -79,9 +77,14 @@ Dim textFile
 ' ========== 変数宣言 END ==========
 
 ' 出力先定義１ START
-' 出力フォルダ
+' 出力フォルダ 本vbsと同じ場所に保存
 strOutputDir = "."
-strNasDir = "\\nas\pcInfo"
+
+' 保存先を特定のフォルダにする場合
+'strOutputDir = "C:\temp"
+
+' 保存先をファイルサーバー/NASにする場合
+'strOutputDir = "\\nasne\share1"
 
 ' 日付取得
 strYmd = Year(Now()) & Right("0" & Month(Now()),2) & Right("0" & Day(Now()),2)
@@ -241,11 +244,10 @@ strOutputFile = strPcId & "_" & "pcMainInfo" & "_" & strYmd & ".txt"
 
 ' 出力フルパスの設定
 strOutputFull = strOutputDir & "\" & strOutputFile
-strNasFull = strNasDir & "\" & strOutputFile
 
 ' 出力先定義２ END
 
-' 現在のディレクトリへの書き込み Start
+' 保存先への書き込み Start
 Set fso = Wscript.CreateObject("Scripting.FileSystemObject")
 Set textFile = fso.CreateTextFile(strOutputFull, True)
 
@@ -254,21 +256,11 @@ textFile.WriteLine strOutputMessage
 
 ' ファイル CLOSE
 textFile.close
-' 現在のディレクトリへの書き込み End
-
-' ファイルサーバーへの書き込み START
-'Set textFile = fso.CreateTextFile(strNasFull, True)
-
-' 書き込み
-'textFile.WriteLine strOutputMessage
-
-' ファイル CLOSE
-'textFile.close
-' ファイルサーバーへの書き込み END
+' 保存先への書き込み End
 
 Wscript.Echo "PC情報を保存しました。" & vbCrLf & _
+	"保存先フォルダ" & CONST_STR_SEP & strOutputDir & vbCrLf & _
 	"ファイル名" & CONST_STR_SEP & strOutputFile & vbCrLf & _
-	"" & vbCrLf & _
 	"----------" & vbCrLf & _
 	strOutputMessage & vbCrLf & _
 	"----------"
