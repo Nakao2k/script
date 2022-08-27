@@ -62,18 +62,19 @@ Dim objShell
 Set objShell = WScript.CreateObject("WScript.Shell")
 ' 実行用オブジェクト
 Dim objExec
+' ファイル出力用オブジェクト
+Dim fso
+' テキストファイル用オブジェクト
+Dim textFile
 ' コマンドライン実行オブジェクト END
 ' オブジェクト変数の定義 END
 
-Dim strMsg
 Dim strOutputDir
 Dim strOutputFile
 Dim strOutputFull
 Dim strYmd
 Dim strError
 
-Dim fso
-Dim textFile
 ' ========== 変数宣言 END ==========
 
 ' 出力先定義１ START
