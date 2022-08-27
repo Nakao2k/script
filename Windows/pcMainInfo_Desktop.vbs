@@ -266,7 +266,9 @@ textFile.close
 'textFile.close
 ' ファイルサーバーへの書き込み END
 
-Wscript.Echo "PC情報送信処理が完了しました。" & vbCrLf & vbCrLf & _
+Wscript.Echo "PC情報を保存しました。" & vbCrLf & _
+	"ファイル名" & CONST_STR_SEP & strOutputFile & vbCrLf & _
+	"" & vbCrLf & _
 	"----------" & vbCrLf & _
 	strOutputMessage & vbCrLf & _
 	"----------"
