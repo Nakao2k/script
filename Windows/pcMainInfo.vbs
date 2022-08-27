@@ -63,9 +63,10 @@ Set objShell = WScript.CreateObject("WScript.Shell")
 ' 実行用オブジェクト
 Dim objExec
 ' ファイル出力用オブジェクト
-Dim fso
+Dim objFso
+Set objFso = Wscript.CreateObject("Scripting.FileSystemObject")
 ' テキストファイル用オブジェクト
-Dim textFile
+Dim objTextFile
 ' コマンドライン実行オブジェクト END
 ' オブジェクト変数の定義 END
 
@@ -249,16 +250,16 @@ strOutputFull = strOutputDir & "\" & strOutputFile
 ' 出力先定義２ END
 
 ' 保存先への書き込み Start
-Set fso = Wscript.CreateObject("Scripting.FileSystemObject")
-Set textFile = fso.CreateTextFile(strOutputFull, True)
+Set objTextFile = objFso.CreateTextFile(strOutputFull, True)
 
 ' 書き込み
-textFile.WriteLine strOutputMessage
+objTextFile.WriteLine strOutputMessage
 
 ' ファイル CLOSE
-textFile.close
+objTextFile.close
 ' 保存先への書き込み End
 
+' 終了メッセージをユーザーに表示
 Wscript.Echo "PC情報を保存しました。" & vbCrLf & _
 	"保存先フォルダ" & CONST_STR_SEP & strOutputDir & vbCrLf & _
 	"ファイル名" & CONST_STR_SEP & strOutputFile & vbCrLf & _
@@ -266,5 +267,4 @@ Wscript.Echo "PC情報を保存しました。" & vbCrLf & _
 	strOutputMessage & vbCrLf & _
 	"----------"
 
-' 出力処理 End
 
