@@ -1,0 +1,29 @@
+---
+- name: Update ansible
+  become: true
+
+  tasks:
+  - name: Ensure software-properties-common is at the latest version
+    ansible.builtin.apt:
+      name: software-properties-common
+      state: latest
+      update_cache: yes
+      cache_valid_time: 3600
+      
+  - name: apt repository add ppa:ansible/ansible
+    ansible.builtin.apt_repository:
+      repo: ppa:ansible/ansible
+      state: present
+      update_cache: yes
+
+  - name: Ensure ansible is at the latest version
+    ansible.builtin.apt:
+      name: ansible
+      state: latest
+      update_cache: yes
+      cache_valid_time: 3600
+
+  # - name: コマンドの実行結果を確認
+  #   ansible.builtin.debug:
+  #     var: execution_result
+

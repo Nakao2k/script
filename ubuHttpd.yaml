@@ -1,0 +1,27 @@
+---
+- name: Update web servers
+  become: true
+
+  tasks:
+  - name: Ensure apache is at the latest version
+    ansible.builtin.apt:
+      name: apache2
+      state: latest
+      update_cache: yes
+      cache_valid_time: 3600
+  
+- name: Update db servers
+  become: true
+  tasks:
+  - name: Ensure postgresql is at the latest version
+    ansible.builtin.apt:
+      name: postgresql
+      state: latest
+      update_cache: yes
+      cache_valid_time: 3600
+    
+  - name: Ensure that postgresql is started
+    ansible.builtin.service:
+      name: postgresql
+      state: started
+
