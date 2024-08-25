@@ -59,21 +59,28 @@ Dim colItems
 ' コマンドライン実行オブジェクト Start
 ' シェルオブジェクト
 Dim objShell
+' シェルオブジェクトの作成
 Set objShell = WScript.CreateObject("WScript.Shell")
 ' 実行用オブジェクト
 Dim objExec
 ' ファイル出力用オブジェクト
 Dim objFso
+' ファイルシステムオブジェクトの作成
 Set objFso = Wscript.CreateObject("Scripting.FileSystemObject")
 ' テキストファイル用オブジェクト
 Dim objTextFile
 ' コマンドライン実行オブジェクト END
 ' オブジェクト変数の定義 END
 
+' 出力ディレクトリの変数
 Dim strOutputDir
+' 出力ファイルの変数
 Dim strOutputFile
+' 出力フルパスの変数
 Dim strOutputFull
+' 日付の変数
 Dim strYmd
+' エラーメッセージの変数
 Dim strError
 
 ' ========== 変数宣言 END ==========
@@ -88,7 +95,7 @@ strOutputDir = "."
 ' 保存先をファイルサーバー/NASにする場合
 'strOutputDir = "\\nasne\share1"
 
-' 日付取得
+' 日付取得（YYYYMMDD形式）
 strYmd = Year(Now()) & Right("0" & Month(Now()),2) & Right("0" & Day(Now()),2)
 ' 出力先定義１ END
 
@@ -100,78 +107,86 @@ strYmd = Year(Now()) & Right("0" & Month(Now()),2) & Right("0" & Day(Now()),2)
 Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
 
 ' OS・サービスパックの取得 START
+' Win32_OperatingSystem クラスを使用して、OS情報を取得
 Set colItems = objWMIService.ExecQuery("Select * from Win32_OperatingSystem",,48)
 
 For Each objItem in colItems
-	' OS
+	' OSの名称を取得
 	strPreOs = objItem.Caption
 Next
 ' OS・サービスパックの取得 End
 
 ' コンピュータ名・ドメイン名・ユーザー名・メモリ容量の取得 START
+' Win32_ComputerSystem クラスを使用して、システム情報を取得
 Set colItems = objWMIService.ExecQuery("Select * from Win32_ComputerSystem",,48)
 
 For Each objItem in colItems
-	'コンピュータ名
+	'コンピュータ名を取得
 	strPcId = objItem.Name
-	'ドメイン名
+	'ドメイン名を取得
 	charDomain = objItem.Domain
-	' ユーザー名
+	' ユーザー名を取得
 	charUserName = objItem.UserName
-	' メモリ容量
+	' メモリ容量をMB単位で取得
 	strMemory = fix(objItem.TotalPhysicalMemory /1024 /1024) & "MB"
 Next
 ' コンピュータ名・ドメイン名・ユーザー名・メモリ容量の取得 END
 
 ' ベンダー・機種名・シリアルナンバー START
+' Win32_ComputerSystemProduct クラスを使用して、製品情報を取得
 Set colItems = objWMIService.ExecQuery("Select * from Win32_ComputerSystemProduct",,48)
 
 For Each objItem in colItems
-	' ベンダー
+	' ベンダーを取得
 	strMaker = objItem.Vendor
-	' 機種名
+	' 機種名を取得
 	strProductNo = objItem.Name
-	' シリアルナンバー
+	' シリアルナンバーを取得
 	strSerialNo = objItem.IdentifyingNumber
 Next
 ' ベンダー・機種名・シリアルナンバー END
 
 ' CPU START
+' Win32_Processor クラスを使用して、CPU情報を取得
 Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2")
 Set colItems = objWMIService.ExecQuery("Select * From Win32_Processor")
 
 For Each objItem In colItems
+	' CPU名とクロック速度を取得
     strCpu = strCpu & objItem.Name & " " & objItem.CurrentClockSpeed & "MHz"
 Next
 ' CPU END
 
 ' UUID取得 START
+' Win32_ComputerSystemProduct クラスを使用して、UUIDを取得
 Set objWMIService = GetObject("winmgmts:\\.")
 Set colItems = objWMIService.InstancesOf("Win32_ComputerSystemProduct")
 
 For Each objItem In colItems
+	' UUIDを取得
 	charUuid = objItem.Uuid
 Next
 ' UUID取得 END
 
-' エラー時は次の処理 START
+' エラー時の処理を指定
 On Error Resume Next
 
 ' HDD START
+' Win32_DiskDrive クラスを使用して、HDD情報を取得
 Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}")
 Set colItems = objWMIService.ExecQuery("SELECT Caption,Size FROM Win32_DiskDrive")
 
 For Each objItem In colItems
-	' HDDサイズ初期化
+	' HDDサイズを初期化
 	dblHddSize = -1
 	
 	' HDDサイズを取得
 	dblHddSize = objItem.Size
 	
-	' GB単位で取得
+	' サイズをGB単位で計算
 	dblHddSize = dblHddSize / (1000 * 1000 * 1000)
 
-	' 小数第三位を四捨五入
+	' 小数第3位を四捨五入
 	dblHddSize = round(dblHddSize, 2)
 
 	' GB表記を追加
@@ -194,6 +209,7 @@ Set colItems = objServer.ExecQuery("Select * From Win32_NetworkAdapterConfigurat
 intCntLan = 0
 
 For Each objItem In colItems
+	' IPアドレスが有効なアダプターのみ対象
 	If objItem.IPEnabled = True Then
 		' LANアダプターのカウントをインクリメント
 		intCntLan = intCntLan + 1
@@ -203,7 +219,7 @@ For Each objItem In colItems
 			strLanAdpt = strLanAdpt & vbCrLf
 		end if
 		
-		' メッセージの追加
+		' メッセージの追加（アダプター情報）
 		strLanAdpt = strLanAdpt & _
 			"LanAdapter_" & intCntLan & CONST_STR_SEP & objItem.Description & vbCrLf & _
 			"IPAddress_" & intCntLan & CONST_STR_SEP & objItem.IPAddress(0) & vbCrLf & _
@@ -221,10 +237,11 @@ End If
 ' エラー情報をクリアする。
 Err.Clear
 
-' エラー時はメッセージ表示
+' エラー時はメッセージ表示に戻す
 On Error Goto 0
 ' エラー時は次の処理 END
 
+' 出力メッセージの作成
 strOutputMessage = _
 	"pcId" & CONST_STR_SEP & strPcId & vbCrLf & _
 	"productNo" & CONST_STR_SEP & strProductNo & vbCrLf & _
@@ -241,7 +258,7 @@ strOutputMessage = _
 	"errorMessage" & CONST_STR_SEP & strError
 
 ' 出力先定義２ START
-' 出力ファイル
+' 出力ファイル名の作成
 strOutputFile = strPcId & "_" & "pcMainInfo" & "_" & strYmd & ".txt"
 
 ' 出力フルパスの設定
@@ -250,12 +267,13 @@ strOutputFull = strOutputDir & "\" & strOutputFile
 ' 出力先定義２ END
 
 ' 保存先への書き込み Start
+' テキストファイルを作成し書き込み準備
 Set objTextFile = objFso.CreateTextFile(strOutputFull, True)
 
-' 書き込み
+' メッセージを書き込み
 objTextFile.WriteLine strOutputMessage
 
-' ファイル CLOSE
+' ファイルを閉じる
 objTextFile.close
 ' 保存先への書き込み End
 
@@ -266,5 +284,3 @@ Wscript.Echo "PC情報を保存しました。" & vbCrLf & _
 	"----------" & vbCrLf & _
 	strOutputMessage & vbCrLf & _
 	"----------"
-
-
